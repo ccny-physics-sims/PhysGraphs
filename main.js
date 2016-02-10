@@ -5,10 +5,10 @@ function setup(){
 	test.x_offset = 20;
 	test.y_offset = 20;
 	
-	var x = [0,1,2,3,4,5,6,7,8,9,10];
-	var y = [0,2,4,6,8,10,8,6,4,3,2];
+	var x = [0,1,2,3,4,5,6,7,8,9,10,12,15,16];
+	var y = [0,2,4,6,8,10,8,6,4,3,2,2,2,2];
 	
-	pArray = Point.makeData(x,y);
+	pArray = Graph.makeData(x,y);
 	
 	
 	
@@ -22,6 +22,7 @@ function setup(){
 	pArray = [p1,p2,p3,p4];
 	
 	plot2 = new Plot(pArray,56,139,0,2);
+	plot1.user = true;
 	test.addPlot(plot1);
 	test.addPlot(plot2);
 }
@@ -30,4 +31,7 @@ function draw(){
 	background(100);	
 	test.drawBg();
 	test.plotAll();
+}
+function mouseDragged(){
+	test.plots[0].getUser();
 }
