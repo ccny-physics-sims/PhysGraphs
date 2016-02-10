@@ -2,13 +2,13 @@
  * -add function to point class to generate an array of points from
  * seperate arrays of x and y choords
  * -add equation class
- * -add user interativity for mouse and touch
+ * -add user interativity for mouse [DONE]and touch [In progress...]
  * -fix scaling problems
  * 		-with resoloution
  * 		-with numbers and edging distances
  * -add a legend to the graph
  * -add other kinds of lines to draw the plot with
- * -simplify into a scale coords function.
+ * -simplify into a scale coords function. [DONE]
  * -trim out of bounds points and lines
  * */
 
@@ -73,22 +73,7 @@ Plot.prototype.plot = function(){
 		ellipse(this.data[i].x, this.data[i].y, 8, 8);
 	}
 };
-//userplot plots the graph with getting user input.
-Plot.prototype.userPlot = function(){
-	//drawMode("center");
-	fill(this.color);
-	stroke(this.color);
-	strokeWeight(this.weight);
-	
-	for(var i = 0;i<this.data.length;i++){
-				
-		if(i<this.data.length-1){
-			line(this.data[i].x, this.data[i].y,
-					this.data[i+1].x, this.data[i+1].y);
-		}
-		ellipse(this.data[i].x, this.data[i].y, 8, 8);
-	}
-};
+
 //updates data to user input
 Plot.prototype.getUser = function(){
 	var d = new Point(0,0);
@@ -118,6 +103,7 @@ Plot.prototype.fixChoord = function(xoff, yoff, scalex, scaley){
 		this.data[i].y = this.data[i].y*scaley+yoff;
 	}
 }
+
 function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	
 	// initial variables
@@ -167,10 +153,6 @@ Graph.prototype.drawBg = function(){
 	//border
 	if(this.showBorder == false){
 		noStroke();
-		//line(this.x_offset, this.y_offset, this.width, this.y_offset);
-		//line(this.x_offset, this.y_offset, this.x_offset, this.height);
-		//line(this.x_offset, this.height, this.width, this.height);
-		//line(this.width, this.y_offset, this.width, this.height);
 	}else{
 		stroke(0);
 		strokeWeight(this.borderWidth);
@@ -230,13 +212,8 @@ Graph.prototype.drawBg = function(){
 };
 //plots all plots on this graph
 Graph.prototype.plotAll = function(){
-	for(var i = 0; i<this.plots.length;i++){
-		if(this.plots[i].user == false){
-			this.plots[i].plot();
-		}
-		else{
-			this.plots[i].userPlot();
-		}
+	for(var i = 0; i<this.plots.length;i++){		
+		this.plots[i].plot();		
 	}
 };
 //add a new plot to the graph.
