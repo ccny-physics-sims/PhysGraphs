@@ -1,6 +1,6 @@
 ﻿/*ToDo:
- * -add function to point class to generate an array of points from
- * seperate arrays of x and y choords
+ * -add function to graph class to generate an array of points from
+ * seperate arrays of x and y choords [DONE]
  * -add equation class
  * -add user interativity for mouse [DONE]and touch [In progress...]
  * -fix scaling problems
@@ -47,10 +47,6 @@ function Plot(pointArray, red, green, blue, weight){
 	this.data = pointArray; //plot data (an array of points)
 	this.color = color(red, green, blue); //the color that the graph will be drawn in
 	this.weight = weight; // a number for the stroke thickness of the graph
-	
-	this.user = false; // set true if you want the graph to get user input
-	this.xfixed = false // this is set to true IFF it is a user graph and the x coords have been scaled already.
-						// look at getUser() and userPlot() for more description
 }
 //regular plotting function
 Plot.prototype.plot = function(){
@@ -238,9 +234,13 @@ Graph.makeData = function(xarray, yarray){
 };
 
 //this might make more sense to put as part of the Plot object
-Graph.makeUserPlot = function(resoloution){
+Graph.makeUserPlot = function(x1, x2, resoloution){
 	var finalArray = [];
-	//var templot = new Plot();
-	//for(var i = 0;i<)	
+	var templot = new Plot();
+	var scale = (x2-x1)/resoloution;
+	for(var i = 0;i<resoloution;i++){
+		
+	}
+		
 	return templot;
 };

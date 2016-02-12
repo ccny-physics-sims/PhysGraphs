@@ -15,9 +15,9 @@ function setup(){
 	plot1 = new Plot(pArray,167,203,237,3);
 	
 	p1 = new Point(0,0);
-	p2 = new Point(1,1);
-	p3 = new Point(2,4);
-	p4 = new Point(3,9);
+	p2 = new Point(.5,1);
+	p3 = new Point(2.5,4);
+	p4 = new Point(3.5,9);
 	
 	pArray = [p1,p2,p3,p4];
 	
