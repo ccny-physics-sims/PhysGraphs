@@ -15,13 +15,13 @@ function setup(){
 	plot1 = new Plot(pArray,167,203,237,3);
 	
 	p1 = new Point(0,0);
-	p2 = new Point(.5,1);
-	p3 = new Point(2.5,4);
-	p4 = new Point(3.5,9);
+	p2 = new Point(1,1);
+	p3 = new Point(2,4);
+	p4 = new Point(3,9);
 	
 	pArray = [p1,p2,p3,p4];
 	
-	plot2 = new Plot(pArray,56,139,0,2);
+	plot2 = new Plot(pArray,255,0,0,2);
 	
 	test.addPlot(plot1);
 	test.addPlot(plot2);

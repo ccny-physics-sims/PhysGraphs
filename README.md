@@ -68,4 +68,4 @@ graph1.drawBg();
 graph1.plotAll();
 ```
 This will plot the following:
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![alt text](download.png "graph1")
