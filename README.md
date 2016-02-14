@@ -67,5 +67,5 @@ Then in the draw function use the following:
 graph1.drawBg();  
 graph1.plotAll();
 ```
-This will plot the following:
+This will plot the following:  
 ![alt text](download.png "graph1")
