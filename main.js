@@ -22,7 +22,7 @@ function setup(){
 	pArray = [p1,p2,p3,p4];
 	
 	plot2 = new Plot(pArray,56,139,0,2);
-	plot1.user = true;
+	
 	test.addPlot(plot1);
 	test.addPlot(plot2);
 }
