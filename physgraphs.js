@@ -6,7 +6,8 @@
  * 		-with numbers and edging distances
  * -add a legend to the graph
  * -add other kinds of lines to draw the plot with
- * -trim out of bounds points and lines
+ * -
+ * FIX!!! DRAW BG FUNCTION
  * */
 
 //Declaration for a point object to be used when graphing.
@@ -17,7 +18,7 @@ function Point(x,y){
 }
 Point.prototype.add = function(x,y){
 	this.x += x;
-	this.y += y;
+	this.y -= y;
 };
 //fixes the y choordinates to work with p5.js
 Point.prototype.fixChoord = function(){
@@ -79,10 +80,11 @@ Plot.prototype.plot = function(graph){
 	for(var i = 0;i<this.data.length;i++){
 		
 		//if(i<this.data.length-1 && this.data[i+1].x <= graph.width && this.data[i+1].y <= graph.height){
+		if(i<this.data.length-1){
 			//draws the connecting lines, scaling the data so that it corresponds to our coordinate space
 			line(this.data[i].x, this.data[i].y,
 					this.data[i+1].x, this.data[i+1].y); 
-		//}
+		}
 		//draws the data points, with scaling and offset.
 		//if(this.data[i].x <= graph.width && this.data[i+1].y <= graph.height){
 			ellipse(this.data[i].x, this.data[i].y, 8, 8);	
@@ -116,7 +118,7 @@ Plot.prototype.getPointDist = function(num1, num2){
 Plot.prototype.fixChoord = function(xoff, yoff, scalex, scaley, origin){
 	var p = Point.getPoint(origin);
 	for(var i = 0;i<this.data.length;i++){
-		this.data[i].fixChoord();
+		//this.data[i].fixChoord();
 		p.add(this.data[i].x*scalex, this.data[i].y*scaley);
 		this.data[i].x = p.x;
 		this.data[i].y = p.y;
@@ -127,6 +129,7 @@ Plot.prototype.fixChoord = function(xoff, yoff, scalex, scaley, origin){
 function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	
 	// initial variables
+	
 	this.width = w;
 	this.height = h;
 	this.resoloution = resoloution;
@@ -155,7 +158,7 @@ function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	 * this is used for determining correct positioning of graph coordinates.
 	 * */				
 	this.bl_pix = new Point(this.x_offset+this.width*0.1,
-								this.y_offset+this.height*0.9);
+								this.y_offset+this.height*0.95);
 	this.bl_val = new Point(this.x_min, this.y_min);
 	this.bl_val.invert();
 	
@@ -214,7 +217,7 @@ Graph.prototype.drawBg = function(){
 	var xpix = this.xpix
 	var ypix = this.ypix
 	
-	//draw x values and vertical lines
+	//draw x values and horizontal lines
 	fill(0);
 	stroke(180);
 	var count = this.x_min; //for counting intermediary values
