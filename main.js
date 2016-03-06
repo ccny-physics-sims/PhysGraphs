@@ -1,6 +1,6 @@
 function setup(){
 	createCanvas(800,500);
-	test = new Graph(20,20, 400,400,-2,2,-2,2,2);
+	test = new Graph(400,400,-5,5,-5,5,10);
 	test.showBorder = true;
 	test.x_offset = 30;
 	test.y_offset = 30;
@@ -23,7 +23,7 @@ function setup(){
 	
 	plot2 = new Plot(pArray,255,0,0,2);
 	
-	//test.addPlot(plot1);
+	test.addPlot(plot1);
 	test.addPlot(plot2);
 }
 function draw(){
@@ -32,8 +32,10 @@ function draw(){
 	test.drawBg();
 	test.plotAll();
 	
-	 ellipse(test.origin.x,test.origin.y,20,20);
+	 ellipse(test.origin.x,test.origin.y,20,20); // origin test
+	 ellipse(test.bl_pix.x,test.bl_pix.y,20,20); //bl test
+	 ellipse(test.tr_pix.x, test.tr_pix.y, 20,20); //tr test
 }
 function mouseDragged(){
-	//test.plots[0].getUser();
+	test.plots[0].getUser();
 }

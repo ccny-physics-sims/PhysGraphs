@@ -66,6 +66,8 @@ function Plot(pointArray, red, green, blue, weight){
 	this.data = pointArray; //plot data (an array of points)
 	this.color = color(red, green, blue); //the color that the graph will be drawn in
 	this.weight = weight; // a number for the stroke thickness of the graph
+	
+	this.drawData = true;
 }
 //regular plotting function
 Plot.prototype.plot = function(graph){
@@ -79,16 +81,16 @@ Plot.prototype.plot = function(graph){
 	//draws the data points and the connecting lines
 	for(var i = 0;i<this.data.length;i++){
 		
-		//if(i<this.data.length-1 && this.data[i+1].x <= graph.width && this.data[i+1].y <= graph.height){
-		if(i<this.data.length-1){
+		if(i<this.data.length-1 && this.data[i+1].x <= graph.width && this.data[i+1].y <= graph.height){
+		//if(i<this.data.length-1){
 			//draws the connecting lines, scaling the data so that it corresponds to our coordinate space
 			line(this.data[i].x, this.data[i].y,
 					this.data[i+1].x, this.data[i+1].y); 
 		}
 		//draws the data points, with scaling and offset.
-		//if(this.data[i].x <= graph.width && this.data[i+1].y <= graph.height){
+		if(this.data[i].x <= graph.width && this.data[i+1].y <= graph.height){
 			ellipse(this.data[i].x, this.data[i].y, 8, 8);	
-		//}
+		}
 		
 	}
 };
@@ -154,24 +156,27 @@ function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	//functional variables
 	this.plots = [];
 	
-	/* bl = bottom left.
+	/* bl = bottom left. coordinates of where the actual graph begins.
+	 * tr = top right.
 	 * this is used for determining correct positioning of graph coordinates.
 	 * */				
-	this.bl_pix = new Point(this.x_offset+this.width*0.1,
-								this.y_offset+this.height*0.95);
+	this.bl_pix = new Point(this.x_offset+this.width*0.2,
+								this.y_offset+this.height*0.98);
+	this.tr_pix = new Point(this.x_offset+this.width*0.99,
+								this.y_offset+this.height*0.2);
 	this.bl_val = new Point(this.x_min, this.y_min);
 	this.bl_val.invert();
 	
 	
 	this.xpix = dist(this.bl_pix.x, this.bl_pix.y, 
-					this.x_offset+this.width*0.95, this.bl_pix.y)/this.resoloution; //xScale in pixels
+					this.tr_pix.x, this.bl_pix.y)/this.resoloution; //xScale in pixels
 	this.ypix = dist(this.bl_pix.x, this.bl_pix.y, 
-					this.bl_pix.x, this.y_offset+this.height*0.05)/this.resoloution; //yScale in pixels
+					this.bl_pix.x, this.tr_pix.y)/this.resoloution; //yScale in pixels
 					
 	this.xunit = dist(this.bl_pix.x, this.bl_pix.y, 
-					this.x_offset+this.width*0.95, this.bl_pix.y)/(this.x_max-this.x_min); //xUnitScale 
+					this.tr_pix.x, this.bl_pix.y)/(this.x_max-this.x_min); //xUnitScale 
 	this.yunit = dist(this.bl_pix.x, this.bl_pix.y, 
-					this.bl_pix.x, this.y_offset+this.height*0.05)/(this.y_max-this.y_min); //yUnitScale
+					this.bl_pix.x, this.tr_pix.y)/(this.y_max-this.y_min); //yUnitScale
 	
 	this.origin = Point.getPoint(this.bl_pix);
 	this.origin.add(this.bl_val.x*this.xunit, this.bl_val.y*this.yunit);
@@ -198,50 +203,46 @@ Graph.prototype.drawBg = function(){
 	fill(255);
 	
 	//draw base layer of graph
-	rect(this.x_offset, this.y_offset, this.width, this.height);
+	rect(this.x_offset, this.y_offset, this.width+this.x_offset, this.height+this.y_offset);
 	
 	strokeWeight(1);
 	
 	//draw axis
 	stroke(0);
 	line(this.bl_pix.x, this.bl_pix.y, 
-			this.x_offset+this.width*0.95, this.bl_pix.y) //x border
+			this.tr_pix.x, this.bl_pix.y) //x border
 	line(this.bl_pix.x, this.bl_pix.y, 
-			this.bl_pix.x, this.y_offset+this.height*0.05) //y border
+			this.bl_pix.x, this.tr_pix.y) //y border
 	
-	//compute resoloution values
+	//compute resoloution values (numeric values)
 	var xdiff = (this.x_max - this.x_min)/this.resoloution;
 	var ydiff = (this.y_max - this.y_min)/this.resoloution;
 	
-	//compute pixel resoloution
-	var xpix = this.xpix
-	var ypix = this.ypix
-	
-	//draw x values and horizontal lines
+	//draw x values and vertical lines
 	fill(0);
 	stroke(180);
 	var count = this.x_min; //for counting intermediary values
 	var pixCount = 0;
-		//draw zero	
+		//draw min label	
 		text(this.x_min, this.bl_pix.x, this.bl_pix.y+20);
 	for(var i = 0; i < this.resoloution; i++){
 		count += xdiff;
-		pixCount += xpix;
+		pixCount += this.xpix;
 		line(this.bl_pix.x + pixCount, this.bl_pix.y+5, 
-				this.bl_pix.x + pixCount, this.y_offset+this.height*0.05);
+				this.bl_pix.x + pixCount, this.tr_pix.y);
 		text((Math.round(10*count)/10).toString(), this.bl_pix.x + pixCount, this.bl_pix.y+20);		
 	}
 	
-	//draw y values and vertical lines
+	//draw y values and horizontal lines
 	var count = this.y_min; //for counting intermediary values
 	var pixCount = 0;
-		//draw zero	
+		//draw min label	
 		text(this.y_min, this.bl_pix.x - 20, this.bl_pix.y);
 	for(var i = 0; i < this.resoloution; i++){
 		count += ydiff;
-		pixCount += ypix;
+		pixCount += this.ypix;
 		line(this.bl_pix.x - 5, this.bl_pix.y-pixCount, 
-				this.x_offset+this.width*0.95, this.bl_pix.y-pixCount);
+				this.tr_pix.x, this.bl_pix.y-pixCount);
 		text((Math.round(10*count)/10).toString(), this.bl_pix.x - 20, this.bl_pix.y-pixCount);		
 	}
 	
