@@ -69,3 +69,78 @@ graph1.plotAll();
 ```
 This will plot the following:  
 ![alt text](download.png "graph1")
+
+**note** - the graph.drawBg() function can take the following parameters graph.drawBg(bgfill, border) which are both p5.js color(r,g,b) objects. By default the background will be white and the border will be black.
+
+## Additional Types of Plots
+There are two additional types of behavior that you can have your graph do; user input controlled and a timeplot.
+
+### A User Graph
+To declare a user plot you can either use an existing plot or auto generate a straight plot of zero values with the Graph.makeUserPlot() function:
+
+**Example:**
+```javascript
+plot3 = Graph.makeUserPlot(0,100,100,color(0,0,0),1,3);
+```
+The function Graph.makeUserPlot(xstart, xfinish, resoloution, color, weight, psize) has the following arguments
++ xstart: the position on the x-axis where you would like the generated plot to start from.
++ xfinish: the position on the x-axis where you would like the generated plot to finish.
++ resoloution: how many subdivisions there should be between the values of xstart and xfinish.
++ color: a color(r,g,b) object from the p5.js library. This is the color that the generated plot will be.
++ weight: the thickness of the lines used for the generated plot. (0 means there will be no lines drawn just points).
++ psize:  the size of the data points drawn. (0 means that there will be no points drawn).
+
+Either way, once you have the desired points on your plot that you want to manipulate the you must call getUser() in the mouseDragged() function.
+
+**Example:**
+
+```javascript
+plot5 = Graph.makeUserPlot(0,100,100,200,200,0,1,3);
+graph1.addPlot(plot5);
+
+function mouseDragged(){
+	graph1.plots[0].getUser();	
+}
+```
+
+Again, don't forget to call graph1.drawBg() & graph1.plotAll() in the draw() function to see your graph.
+
+### Timeplots
+A timeplot captures data from a variable in your code and plots its value over time. To make a time plot just create a plot the usual way. Note-for the point array just use [] for the argument (see example). If you use other data it will just be overriden by the recorded data so there is not point. It will still run properly just starting with what ever values that you used. Then during the draw() function you can call the graph.tpRecord(variable, graph); to record the variable vs. time.
+**Example:**
+
+```javascript
+//first declare your plot. Remember to leave the first argument as [].
+plot4 = new Plot([],0,0,255,1);
+graph1.addPlot(plot4);
+
+//now during the draw function call these three functions
+graph1.drawBg();
+graph1.plotAll();
+graph1.plots[0].tpRecord(*variable*,graph1); // This will capture the variable. 
+											 //Use the index of your plot instead of 0 
+											 //if it is not the first plot on the graph.
+```
+#### Adjusting the framerate of a timeplot. 
+
+It is not possible to have a different framerate for each graph at the current moment. However to adjust the framerate you must do as follows:
+
+```javascript
+FR = ?; //desired framerate. FR is the global framerate constant.
+frameRate(FR); //p5.js framerate adjustment function.
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

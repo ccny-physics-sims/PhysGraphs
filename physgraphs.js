@@ -10,6 +10,9 @@
  * FIX!!! DRAW BG FUNCTION
  * */
 
+//GLOBAL CONSTANTS
+FR = 30; // must match the framerate of the draw function.
+
 //Declaration for a point object to be used when graphing.
 function Point(x,y){
 	//basic coordinate variables
@@ -66,13 +69,13 @@ function Plot(pointArray, red, green, blue, weight){
 	this.data = pointArray; //plot data (an array of points)
 	this.color = color(red, green, blue); //the color that the graph will be drawn in
 	this.weight = weight; // a number for the stroke thickness of the graph
-	
+	this.pointSize = 8;
 	this.drawData = true;
+	
+	this.timeplot = false;
 }
 //regular plotting function
 Plot.prototype.plot = function(graph){
-	//drawMode("center"); <--need to check p5.js for proper syntax
-	
 	//set up the styles for what will be drawn
 	fill(this.color);
 	stroke(this.color);
@@ -81,15 +84,23 @@ Plot.prototype.plot = function(graph){
 	//draws the data points and the connecting lines
 	for(var i = 0;i<this.data.length;i++){
 		
-		if(i<this.data.length-1 && this.data[i+1].x <= graph.width && this.data[i+1].y <= graph.height){
+		if(i<this.data.length-1 
+			&& this.data[i+1].x <= graph.tr_pix.x 
+			&& this.data[i+1].y >= graph.tr_pix.y
+			&& this.data[i].x >= graph.bl_pix.x
+			&& this.data[i].y <= graph.bl_pix.y){
 		//if(i<this.data.length-1){
-			//draws the connecting lines, scaling the data so that it corresponds to our coordinate space
+			//draws the connecting lines, scaling the data so that 
+			//it corresponds to our coordinate space
 			line(this.data[i].x, this.data[i].y,
 					this.data[i+1].x, this.data[i+1].y); 
 		}
 		//draws the data points, with scaling and offset.
-		if(this.data[i].x <= graph.width && this.data[i+1].y <= graph.height){
-			ellipse(this.data[i].x, this.data[i].y, 8, 8);	
+		if(this.data[i].x <= graph.tr_pix.x 
+			&& this.data[i].y >= graph.tr_pix.y
+			&& this.data[i].x >= graph.bl_pix.x
+			&& this.data[i].y <= graph.bl_pix.y){
+			ellipse(this.data[i].x, this.data[i].y, this.pointSize, this.pointSize);	
 		}
 		
 	}
@@ -109,15 +120,33 @@ Plot.prototype.getUser = function(){
 			closestIndex = i; 
 		}
 	}
+	//TODO: add boundary limits to this funtion.
 	this.data[closestIndex].y = mouseY;
 };
-
+Plot.prototype.tpRecord = function(variable, graph){
+	this.timeplot = true;
+	var bl = graph.bl_pix.x;
+	var tr = graph.x_max;
+	//var timescale = (tr-bl)/100;
+	//var timescale = (graph.x_max-graph.x_min)/graph;
+	var timescale = FR;
+	for(var i=0;i<this.data.length;i++){
+		this.data[i].x -= graph.xunit/timescale; //shift the x-axis
+	}
+	if(this.data[0] && this.data[0].x < bl){
+		this.data.splice(0,1);
+	}
+	
+	var p = new Point(tr, variable);
+	this.data.push(p);
+	
+};
 //gets distance between two points of data
 Plot.prototype.getPointDist = function(num1, num2){
 	return dist(this.data[num1].x, this.data[num1].y, 
 				this.data[num2].x, this.data[num2].y);
 };
-Plot.prototype.fixChoord = function(xoff, yoff, scalex, scaley, origin){
+Plot.prototype.fixChoord = function(scalex, scaley, origin){
 	var p = Point.getPoint(origin);
 	for(var i = 0;i<this.data.length;i++){
 		//this.data[i].fixChoord();
@@ -160,19 +189,20 @@ function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	 * tr = top right.
 	 * this is used for determining correct positioning of graph coordinates.
 	 * */				
-	this.bl_pix = new Point(this.x_offset+this.width*0.2,
-								this.y_offset+this.height*0.98);
-	this.tr_pix = new Point(this.x_offset+this.width*0.99,
-								this.y_offset+this.height*0.2);
+	this.bl_pix = new Point(this.x_offset+this.width*0.15,
+								this.y_offset+this.height*0.95);
+	this.tr_pix = new Point(this.x_offset+this.width*0.95,
+								this.y_offset+this.height*0.15);
 	this.bl_val = new Point(this.x_min, this.y_min);
 	this.bl_val.invert();
 	
-	
+	//xpix and ypix are the number of pixels between each labeled coord.
 	this.xpix = dist(this.bl_pix.x, this.bl_pix.y, 
 					this.tr_pix.x, this.bl_pix.y)/this.resoloution; //xScale in pixels
 	this.ypix = dist(this.bl_pix.x, this.bl_pix.y, 
 					this.bl_pix.x, this.tr_pix.y)/this.resoloution; //yScale in pixels
-					
+	
+	//xunit and yunit are the number of pixels one unit on the graph is.			
 	this.xunit = dist(this.bl_pix.x, this.bl_pix.y, 
 					this.tr_pix.x, this.bl_pix.y)/(this.x_max-this.x_min); //xUnitScale 
 	this.yunit = dist(this.bl_pix.x, this.bl_pix.y, 
@@ -189,21 +219,50 @@ Graph.prototype.update = function(){
 	
 };
 //draw the axis, labels, etc... (the graph without the curves)
-Graph.prototype.drawBg = function(){
+Graph.prototype.set_offset = function(xoff,yoff){
+	this.x_offset = xoff;
+	this.y_offset = yoff;
+	
+	this.bl_pix = new Point(this.x_offset+this.width*0.15,
+								this.y_offset+this.height*0.85);
+	this.tr_pix = new Point(this.x_offset+this.width*0.90,
+								this.y_offset+this.height*0.15);
+	this.bl_val = new Point(this.x_min, this.y_min);
+	this.bl_val.invert();
+	
+	
+	this.xpix = dist(this.bl_pix.x, this.bl_pix.y, 
+					this.tr_pix.x, this.bl_pix.y)/this.resoloution; //xScale in pixels
+	this.ypix = dist(this.bl_pix.x, this.bl_pix.y, 
+					this.bl_pix.x, this.tr_pix.y)/this.resoloution; //yScale in pixels
+					
+	this.xunit = dist(this.bl_pix.x, this.bl_pix.y, 
+					this.tr_pix.x, this.bl_pix.y)/(this.x_max-this.x_min); //xUnitScale 
+	this.yunit = dist(this.bl_pix.x, this.bl_pix.y, 
+					this.bl_pix.x, this.tr_pix.y)/(this.y_max-this.y_min); //yUnitScale
+	
+	this.origin = Point.getPoint(this.bl_pix);
+	this.origin.add(this.bl_val.x*this.xunit, this.bl_val.y*this.yunit);
+	console.log(this.origin.x, this.origin.y);	
+}
+Graph.prototype.drawBg = function(bg = color(255), border = color(0)){
 		
 	//border
 	if(this.showBorder == false){
 		noStroke();
 	}else{
-		stroke(0);
+		stroke(border);
 		strokeWeight(this.borderWidth);
 	}
 	
 	//set background color of graph
-	fill(255);
+	fill(bg);
 	
 	//draw base layer of graph
-	rect(this.x_offset, this.y_offset, this.width+this.x_offset, this.height+this.y_offset);
+	rect(this.x_offset, 
+		 this.y_offset, 
+		 this.width, 
+		 this.height);
 	
 	strokeWeight(1);
 	
@@ -246,21 +305,44 @@ Graph.prototype.drawBg = function(){
 		text((Math.round(10*count)/10).toString(), this.bl_pix.x - 20, this.bl_pix.y-pixCount);		
 	}
 	
+	//draw title and axis labels.
+	if(this.showTitle == true){
+		//add code to make text centered
+		//add styling code
+		text(this.title, this.x_offset + this.width/2, this.y_offset + this.height*.1);
+	}
+	
+	if(this.showLabels == true){
+		//xlabel
+		//add centering code
+		text(this.xlabel,this.x_offset + this.width/2,this.y_offset + this.height*.97);
+		
+		//ylabel
+		text(this.ylabel,this.x_offset+this.width*.03,this.y_offset + this.height/2);
+	}
+	
 };
 //plots all plots on this graph
 Graph.prototype.plotAll = function(){
-	for(var i = 0; i<this.plots.length;i++){		
+	for(var i = 0; i<this.plots.length;i++){
+		if(this.plots[i].timeplot == true){
+			var temp = new Plot();
+			temp.data = [];
+			temp.data[0] = this.plots[i].data[this.plots[i].data.length-1];
+			temp.fixChoord(this.xunit, 
+							this.yunit,
+							this.origin);
+			this.plots[i].data[this.plots[i].data.length-1] = temp.data[0];
+		}		
 		this.plots[i].plot(this);		
 	}
 };
 //add a new plot to the graph.
 Graph.prototype.addPlot = function(aplot){
 	//var temp = this.getZeroes();
-	aplot.fixChoord(this.bl_pix.x, 
-						this.bl_pix.y, 
-						this.xunit, 
-						this.yunit,
-						this.origin);
+	aplot.fixChoord(this.xunit, 
+					this.yunit,
+					this.origin);
 	this.plots.push(aplot);
 };
 //get the x and y zero.
@@ -288,12 +370,17 @@ Graph.makeData = function(xarray, yarray){
 };
 
 //this might make more sense to put as part of the Plot object
-Graph.makeUserPlot = function(x1, x2, resoloution){
+Graph.makeUserPlot = function(x1, x2, resoloution, colour = color(0), weight = 1, psize = 3){
 	var finalArray = [];
 	var templot = new Plot();
+	templot.data = [];
+	templot.weight = weight;
+	templot.pointSize = psize;
+	templot.color = colour;
 	var scale = (x2-x1)/resoloution;
-	for(var i = 0;i<resoloution;i++){
-		
+	for(var i = x1;i<x2;i += scale){
+		var p = new Point(i,0);
+		templot.data.push(p);
 	}
 		
 	return templot;
