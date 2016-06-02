@@ -130,17 +130,3 @@ FR = ?; //desired framerate. FR is the global framerate constant.
 frameRate(FR); //p5.js framerate adjustment function.
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-

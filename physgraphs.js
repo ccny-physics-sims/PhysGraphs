@@ -1,16 +1,4 @@
-﻿/*ToDo:
- * -add equation class
- * -add user interativity for mouse [DONE]and touch [In progress...]
- * -fix scaling problems
- * 		-with resoloution
- * 		-with numbers and edging distances
- * -add a legend to the graph
- * -add other kinds of lines to draw the plot with
- * -
- * FIX!!! DRAW BG FUNCTION
- * */
-
-//GLOBAL CONSTANTS
+﻿//GLOBAL CONSTANTS
 FR = 30; // must match the framerate of the draw function.
 
 //Declaration for a point object to be used when graphing.
@@ -65,13 +53,13 @@ function Equation(){
 /*Declaration of plot object which will be graphed 
  * on graph object 
  * */
-function Plot(pointArray, red, green, blue, weight){
+function Plot(pointArray, red, green, blue, weight, title = "default"){
 	this.data = pointArray; //plot data (an array of points)
-	this.color = color(red, green, blue); //the color that the graph will be drawn in
+	this.color = color(red, green, blue, title = "default"); //the color that the graph will be drawn in
 	this.weight = weight; // a number for the stroke thickness of the graph
 	this.pointSize = 8;
 	this.drawData = true;
-	
+	this.plotTitle = title;	
 	this.timeplot = false;
 }
 //regular plotting function
@@ -178,7 +166,8 @@ function Graph(w, h, x_min, x_max, y_min, y_max, resoloution){
 	this.showTitle = true;
 	this.showBorder = true;
 	this.borderWidth = 2;
-	
+	this.showLegend = false;	
+
 	this.x_offset = 0;
 	this.y_offset = 0;
 	
@@ -305,16 +294,45 @@ Graph.prototype.drawBg = function(bg = color(255), border = color(0)){
 		text((Math.round(10*count)/10).toString(), this.bl_pix.x - 20, this.bl_pix.y-pixCount);		
 	}
 	
-	//draw title and axis labels.
+	//draw title AND axis labels AND legend
 	if(this.showTitle == true){
-		//add code to make text centered
-		//add styling code
-		text(this.title, this.x_offset + this.width/2, this.y_offset + this.height*.1);
+		textSize(16);
+		textAlign(CENTER,CENTER);
+		if(this.showLegend != true){
+			text(this.title, this.x_offset + this.width/2, 
+					this.y_offset + this.height*.07);
+		}
+		else{
+			//shift the title out of the way of the legend
+			//eg--split the space above the graph between them.
+			textSize(16);
+			textAlign(CENTER,CENTER);
+			text(this.title, this.x_offset + this.width/4, 
+					this.y_offset + this.height*.07);
+					
+			//draw frame
+			fill(bg);
+			stroke(border);
+			
+			var top = this.y_offset+this.height*0.02;
+			var left= this.x_offset+this.width/2;
+			rect(left, top, this.width/2.2, this.height*.1);
+			//code for drawing legend.
+			textSize(12);
+			textAlign(LEFT,TOP);
+			noStroke();
+			fill(0);
+			for(var i=0;i<this.plots.length;i++){
+				text(this.plots[i].plotTitle, left+8,top+2);
+				top+=12; //shift the count down a line.
+			}
+		}
 	}
 	
 	if(this.showLabels == true){
 		//xlabel
-		//add centering code
+		textAlign(CENTER,CENTER);
+		textSize(12);
 		text(this.xlabel,this.x_offset + this.width/2,this.y_offset + this.height*.97);
 		
 		//ylabel

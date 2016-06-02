@@ -1,0 +1,23 @@
+TODO list for physgraphs
+& general developer notes.
+
++graph
+	>> margin auto resize to fit labels and titles (also based
+		on length of y and x values)
+	>> add touch interactivity [IMPORTANT!!]
+	>> make x and y resolutions independent (y=-1 is default
+		that way for default the x res val will be for 
+		both axis). 
++plot
+	>> different line styles
+	>> optimizing
+		>> optimizeX and optY for doing as follows:
+			for optx when three points in a row have the
+			same y coords, remove the middle point. (should
+			help a lot for timeplots where motion is linear				) 
+	>> 
++legend
+	>> title
+	>> color for each line
+	>> linestyles when they are included in plots 
+	>>
